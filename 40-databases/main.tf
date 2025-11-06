@@ -32,12 +32,21 @@ resource "terraform_data" "mongodb" {
     host        = aws_instance.mongodb.private_ip  
   }
 
-  provisioner "remote-exec" {
+
+
+
+# terraform copy paste this file to mongodb server , top side we already have connection
+   provisioner "file" {
+        source      = "bootstrap.sh" # Path to the file on your local machine
+        destination = "/tmp/bootstrap.sh" 
+   }
+     provisioner "remote-exec" {
     # command = "bootstrap-hosts.sh"
 
 # inline for multiple commands
     inline = [ 
-        "echo Hello "
+          "chmod +x /tmp/bootstrap.sh",
+          "sudo sh /tmp/bootstrap.sh"
      ]
   }
 }
