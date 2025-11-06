@@ -81,3 +81,14 @@ resource "aws_security_group_rule" "rabbitmq_accept_from_bastion" {
   security_group_id = data.aws_ssm_parameter.rabbitmq.value   # for which security group  here mongodn sg id
   source_security_group_id = data.aws_ssm_parameter.bastion.value    # here i didnot give source because my laptop is not a part of aws so i will give cird block
 }
+
+# mysql  accepting connection from bastion
+resource "aws_security_group_rule" "mysql_accept_from_bastion" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  # cidr_blocks       = [aws_vpc.example.cidr_block]
+  security_group_id = data.aws_ssm_parameter.mysql.value   # for which security group  here mongodn sg id
+  source_security_group_id = data.aws_ssm_parameter.bastion.value    # here i didnot give source because my laptop is not a part of aws so i will give cird block
+}
