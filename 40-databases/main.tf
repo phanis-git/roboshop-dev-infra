@@ -1,5 +1,4 @@
 # creating mongodb instance
-
 resource "aws_instance" "mongodb" {
   ami           = data.aws_ami.joinDevops.id # Replace with a valid AMI ID for your region
   instance_type = var.instance_type
@@ -11,7 +10,6 @@ resource "aws_instance" "mongodb" {
         Name = "${local.common_name_suffix}-mongodb"   # roboshop-dev-mongodb
     }
   )
-
 # we can take remote exec or null provisioner
 #   provisioner "remote-exec" {
     
@@ -24,17 +22,12 @@ resource "terraform_data" "mongodb" {
   triggers_replace = [
     aws_instance.mongodb.id,    # here instance id change it will trigger , instance id changing means instances increasing or decreasing
   ]
-
   connection {
     type        = "ssh"
     user        = "ec2-user"
     password = "DevOps321"
     host        = aws_instance.mongodb.private_ip  
   }
-
-
-
-
 # terraform copy paste this file to mongodb server , top side we already have connection
    provisioner "file" {
         source      = "bootstrap.sh" # Path to the file on your local machine
@@ -46,7 +39,56 @@ resource "terraform_data" "mongodb" {
 # inline for multiple commands
     inline = [ 
           "chmod +x /tmp/bootstrap.sh",
-          "sudo sh /tmp/bootstrap.sh"
+          # "sudo sh /tmp/bootstrap.sh"     # if hard coaded
+          "sudo sh /tmp/bootstrap.sh mongodb"
+     ]
+  }
+}
+
+
+
+# Now same as redis
+
+# creating redis instance
+resource "aws_instance" "redis" {
+  ami           = data.aws_ami.joinDevops.id # Replace with a valid AMI ID for your region
+  instance_type = var.instance_type
+  vpc_security_group_ids = [data.aws_ssm_parameter.redis_sg_id.value] # Replace with a valid Security Group ID
+  subnet_id     = local.database_subnet_id # Replace with a valid Subnet ID
+  tags = merge(
+    local.common_tags,
+    {
+        Name = "${local.common_name_suffix}-redis"   # roboshop-dev-redis
+    }
+  )
+# we can take remote exec or null provisioner
+#   provisioner "remote-exec" {
+    
+#   }
+}
+# Null resource  for doing remote exec
+resource "terraform_data" "redis" {
+  triggers_replace = [
+    aws_instance.redis.id,    # here instance id change it will trigger , instance id changing means instances increasing or decreasing
+  ]
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    password = "DevOps321"
+    host        = aws_instance.redis.private_ip  
+  }
+# terraform copy paste this file to redis server , top side we already have connection
+   provisioner "file" {
+        source      = "bootstrap.sh" # Path to the file on your local machine
+        destination = "/tmp/bootstrap.sh" 
+   }
+     provisioner "remote-exec" {
+    # command = "bootstrap-hosts.sh"
+
+# inline for multiple commands
+    inline = [ 
+          "chmod +x /tmp/bootstrap.sh",
+          "sudo sh /tmp/bootstrap.sh redis"
      ]
   }
 }
