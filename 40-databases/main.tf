@@ -92,3 +92,50 @@ resource "terraform_data" "redis" {
      ]
   }
 }
+
+
+
+# same for rabbitmq 
+# creating rabbitmq instance
+resource "aws_instance" "rabbitmq" {
+  ami           = data.aws_ami.joinDevops.id # Replace with a valid AMI ID for your region
+  instance_type = var.instance_type
+  vpc_security_group_ids = [data.aws_ssm_parameter.rabbitmq_sg_id.value] # Replace with a valid Security Group ID
+  subnet_id     = local.database_subnet_id # Replace with a valid Subnet ID
+  tags = merge(
+    local.common_tags,
+    {
+        Name = "${local.common_name_suffix}-rabbitmq"   # roboshop-dev-rabbitmq
+    }
+  )
+# we can take remote exec or null provisioner
+#   provisioner "remote-exec" {
+    
+#   }
+}
+# Null resource  for doing remote exec
+resource "terraform_data" "rabbitmq" {
+  triggers_replace = [
+    aws_instance.rabbitmq.id,    # here instance id change it will trigger , instance id changing means instances increasing or decreasing
+  ]
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    password = "DevOps321"
+    host        = aws_instance.rabbitmq.private_ip  
+  }
+# terraform copy paste this file to rabbitmq server , top side we already have connection
+   provisioner "file" {
+        source      = "bootstrap.sh" # Path to the file on your local machine
+        destination = "/tmp/bootstrap.sh" 
+   }
+     provisioner "remote-exec" {
+    # command = "bootstrap-hosts.sh"
+
+# inline for multiple commands
+    inline = [ 
+          "chmod +x /tmp/bootstrap.sh",
+          "sudo sh /tmp/bootstrap.sh rabbitmq"
+     ]
+  }
+}
