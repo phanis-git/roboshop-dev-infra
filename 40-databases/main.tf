@@ -139,3 +139,59 @@ resource "terraform_data" "rabbitmq" {
      ]
   }
 }
+
+
+
+
+# same for mysql 
+# creating mysql instance
+resource "aws_instance" "mysql" {
+  ami           = data.aws_ami.joinDevops.id # Replace with a valid AMI ID for your region
+  instance_type = var.instance_type
+  vpc_security_group_ids = [data.aws_ssm_parameter.mysql_sg_id.value] # Replace with a valid Security Group ID
+  subnet_id     = local.database_subnet_id # Replace with a valid Subnet ID
+  iam_instance_profile = aws_iam_instance_profile.mysql.name
+  
+  tags = merge(
+    local.common_tags,
+    {
+        Name = "${local.common_name_suffix}-mysql"   # roboshop-dev-mysql
+    }
+  )
+# we can take remote exec or null provisioner
+#   provisioner "remote-exec" {
+    
+#   }
+}
+
+# Null resource  for doing remote exec
+resource "terraform_data" "mysql" {
+  triggers_replace = [
+    aws_instance.mysql.id,    # here instance id change it will trigger , instance id changing means instances increasing or decreasing
+  ]
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    password = "DevOps321"
+    host        = aws_instance.mysql.private_ip  
+  }
+# terraform copy paste this file to mysql server , top side we already have connection
+   provisioner "file" {
+        source      = "bootstrap.sh" # Path to the file on your local machine
+        destination = "/tmp/bootstrap.sh" 
+   }
+     provisioner "remote-exec" {
+    # command = "bootstrap-hosts.sh"
+
+# inline for multiple commands
+    inline = [ 
+          "chmod +x /tmp/bootstrap.sh",
+          "sudo sh /tmp/bootstrap.sh mysql dev"
+     ]
+  } 
+}
+
+resource "aws_iam_instance_profile" "mysql" {
+  name = "mysql"
+  role = "EC2SSMParameterRead"
+}
