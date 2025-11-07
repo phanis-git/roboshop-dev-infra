@@ -11,12 +11,9 @@ resource "aws_instance" "mongodb" {
     }
   )
 # we can take remote exec or null provisioner
-#   provisioner "remote-exec" {
-    
+#   provisioner "remote-exec" { 
 #   }
-
 }
-
 # Null resource  for doing remote exec
 resource "terraform_data" "mongodb" {
   triggers_replace = [
@@ -34,8 +31,7 @@ resource "terraform_data" "mongodb" {
         destination = "/tmp/bootstrap.sh" 
    }
      provisioner "remote-exec" {
-    # command = "bootstrap-hosts.sh"
-
+    # command = "bootstrap-hosts.sh"   # for single command
 # inline for multiple commands
     inline = [ 
           "chmod +x /tmp/bootstrap.sh",
@@ -48,7 +44,6 @@ resource "terraform_data" "mongodb" {
 
 
 # Now same as redis
-
 # creating redis instance
 resource "aws_instance" "redis" {
   ami           = data.aws_ami.joinDevops.id # Replace with a valid AMI ID for your region
@@ -62,8 +57,7 @@ resource "aws_instance" "redis" {
     }
   )
 # we can take remote exec or null provisioner
-#   provisioner "remote-exec" {
-    
+#   provisioner "remote-exec" { 
 #   }
 }
 # Null resource  for doing remote exec
@@ -84,7 +78,6 @@ resource "terraform_data" "redis" {
    }
      provisioner "remote-exec" {
     # command = "bootstrap-hosts.sh"
-
 # inline for multiple commands
     inline = [ 
           "chmod +x /tmp/bootstrap.sh",
@@ -164,6 +157,11 @@ resource "aws_instance" "mysql" {
 #   }
 }
 
+resource "aws_iam_instance_profile" "mysql" {
+  name = "mysql"
+  role = "EC2SSMParametersRead"
+}
+
 # Null resource  for doing remote exec
 resource "terraform_data" "mysql" {
   triggers_replace = [
@@ -191,7 +189,3 @@ resource "terraform_data" "mysql" {
   } 
 }
 
-resource "aws_iam_instance_profile" "mysql" {
-  name = "mysql"
-  role = "EC2SSMParameterRead"
-}
