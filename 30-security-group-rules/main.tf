@@ -103,3 +103,14 @@ resource "aws_security_group_rule" "catalogue_accept_from_bastion" {
   security_group_id = data.aws_ssm_parameter.catalogue.value   # for which security group  here mongodn sg id
   source_security_group_id = data.aws_ssm_parameter.bastion.value    # here i didnot give source because my laptop is not a part of aws so i will give cird block
 }
+
+# mongodn  accepting connection from catalogue
+resource "aws_security_group_rule" "mongodb_accept_from_catalogue" {
+  type              = "ingress"
+  from_port         = 27017
+  to_port           = 27017
+  protocol          = "tcp"
+  # cidr_blocks       = [aws_vpc.example.cidr_block]
+  security_group_id = data.aws_ssm_parameter.mongodb.value   # for which security group  here mongodn sg id
+  source_security_group_id = data.aws_ssm_parameter.catalogue.value    # here i didnot give source because my laptop is not a part of aws so i will give cird block
+}
