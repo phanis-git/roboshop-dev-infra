@@ -12,4 +12,5 @@ resource "aws_instance" "bastion" {
         Name = "${local.common_name}-bastion"
     }
   )
+  user_data = file("bastion.sh")
 }
