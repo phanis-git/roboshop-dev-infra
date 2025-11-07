@@ -14,3 +14,32 @@ resource "aws_instance" "catalogue" {
 #   provisioner "remote-exec" { 
 #   }
 }
+
+
+# Null resource  for doing remote exec
+resource "terraform_data" "catalogue" {
+  triggers_replace = [
+    aws_instance.catalogue.id,    # here instance id change it will trigger , instance id changing means instances increasing or decreasing
+  ]
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    password = "DevOps321"
+    host        = aws_instance.catalogue.private_ip  
+  }
+# terraform copy paste this file to catalogue server , top side we already have connection
+   provisioner "file" {
+        source      = "catalogue.sh" # Path to the file on your local machine
+        destination = "/tmp/catalogue.sh" 
+   }
+     provisioner "remote-exec" {
+    # command = "catalogue-hosts.sh"   # for single command
+# inline for multiple commands
+    inline = [ 
+          "chmod +x /tmp/catalogue.sh",
+          # "sudo sh /tmp/catalogue.sh"     # if hard coaded
+          "sudo sh /tmp/catalogue.sh catalogue ${var.environment}"
+     ]
+  }
+}
+
