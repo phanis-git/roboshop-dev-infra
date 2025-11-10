@@ -4,7 +4,7 @@ resource "aws_lb" "frontend_alb" {
   load_balancer_type = "application"
   security_groups    = [data.aws_ssm_parameter.frontend-loadbalancer.value]
   subnets            = local.public_subnet_ids_list
-
+  
   enable_deletion_protection = false # prevents accidental deletion   so we need to delete from aws console by enable protection mode if true
 
 
@@ -48,6 +48,7 @@ resource "aws_route53_record" "frontend_alb" {
   zone_id = var.route53_hosted_zone_id
   name = "roboshop-${var.environment_name}.${var.domain_name}" # roboshop-dev.devops-phani.fun
   type =  "A"
+  ttl = 1
   allow_overwrite = true
   alias {
     # These are ALB details not our domain details
