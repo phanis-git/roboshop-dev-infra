@@ -137,7 +137,16 @@ resource "aws_autoscaling_group" "catalogue" {
     }    
   vpc_zone_identifier       = [data.aws_ssm_parameter.private_subnet_ids.value]
   target_group_arns = [aws_lb_target_group.catalogue.arn]
-  
+
+    instance_refresh {
+      strategy = "Rolling"
+      preferences {
+        min_healthy_percentage = 50
+      }
+      triggers = ["launch_template"]
+    }
+
+
  dynamic "tag" {
   for_each = merge(
     local.common_tags,
