@@ -71,17 +71,18 @@ resource "aws_lb_target_group" "catalogue" {
   port     = 8080
   protocol = "HTTP"
   vpc_id   = data.aws_ssm_parameter.vpc_id.value
+   deregistration_delay = 60   # we shouldnot delete immediately the instance if traffic reduce , we should wait sometime because it may serving some traffic 
   health_check {
     healthy_threshold = 2
     interval = 10
     matcher = "200-299"
     path = "/health"
     port = 8080
-    protocol = "http"
+    protocol = "HTTP"
     timeout = 2
     unhealthy_threshold = 2
   }
-  deregistration_delay = 60   # we shouldnot delete immediately the instance if traffic reduce , we should wait sometime because it may serving some traffic 
+ 
 }
 
 # Launch template
@@ -93,7 +94,7 @@ resource "aws_launch_template" "catalogue" {
   vpc_security_group_ids = [data.aws_ssm_parameter.catalogue_sg_id.value]
 
   # when we run terraform apply again, a new version is created with new ami id
-  # update_default_version = true
+  update_default_version = true
   tag_specifications {
     resource_type = "instance"
     tags = merge(
@@ -136,6 +137,7 @@ resource "aws_autoscaling_group" "catalogue" {
     }    
   vpc_zone_identifier       = [data.aws_ssm_parameter.private_subnet_ids.value]
   target_group_arns = [aws_lb_target_group.catalogue.arn]
+  
  dynamic "tag" {
   for_each = merge(
     local.common_tags,
