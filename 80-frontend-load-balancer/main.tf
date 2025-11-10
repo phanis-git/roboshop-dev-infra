@@ -37,8 +37,8 @@ default_action {
     type = "fixed-response"
 
     fixed_response {
-      content_type = "text/plain"
-      message_body = "Hi I am from frontend alb https "
+      content_type = "text/html"
+      message_body = "<h1>Hi I am from frontend alb https </h1>"
       status_code  = "200"
     }
   }
