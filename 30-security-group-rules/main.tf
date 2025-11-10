@@ -125,3 +125,17 @@ resource "aws_security_group_rule" "catalogue_target_group_accept_from_backend_a
   security_group_id = data.aws_ssm_parameter.catalogue.value   # for which security group  here catalogue sg id
   source_security_group_id = data.aws_ssm_parameter.backend-loadbalancer.value  # here i didnot give source because my laptop is not a part of aws so i will give cird block
 }
+
+
+# frontend alb acepting from public
+resource "aws_security_group_rule" "frontend_alb_accept_from_public" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  # cidr_blocks       = [aws_vpc.example.cidr_block]
+  security_group_id = data.aws_ssm_parameter.frontend.value   # for which security group  here frontend sg id
+  # source_security_group_id = data.aws_ssm_parameter.bastion.value    # here i didnot give source because my laptop is not a part of aws so i will give cird block
+
+  cidr_blocks = ["0.0.0.0/0"]
+}
