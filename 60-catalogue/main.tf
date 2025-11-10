@@ -134,7 +134,7 @@ resource "aws_autoscaling_group" "catalogue" {
     id      = aws_launch_template.catalogue.id
     version = aws_launch_template.catalogue.latest_version
     }    
-  vpc_zone_identifier       = [data.aws_ssm_parameter.private_subnet_ids]
+  vpc_zone_identifier       = [data.aws_ssm_parameter.private_subnet_ids.value]
   target_group_arns = [aws_lb_target_group.catalogue.arn]
  dynamic "tag" {
   for_each = merge(
