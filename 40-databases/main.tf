@@ -2,7 +2,7 @@
 resource "aws_instance" "mongodb" {
   ami           = data.aws_ami.joinDevops.id # Replace with a valid AMI ID for your region
   instance_type = var.instance_type
-  vpc_security_group_ids = [data.aws_ssm_parameter.mongodb_sg_id.value] # Replace with a valid Security Group ID
+  vpc_security_group_ids = [local.mongodb_sg_id] # Replace with a valid Security Group ID
   subnet_id     = local.database_subnet_id # Replace with a valid Subnet ID
   tags = merge(
     local.common_tags,

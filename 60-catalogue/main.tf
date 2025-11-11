@@ -2,7 +2,7 @@
 resource "aws_instance" "catalogue" {
   ami           = data.aws_ami.joinDevops.id # Replace with a valid AMI ID for your region
   instance_type = var.instance_type
-  vpc_security_group_ids = [data.aws_ssm_parameter.catalogue_sg_id.value] # Replace with a valid Security Group ID
+  vpc_security_group_ids = [local.catalogue_sg_id] # Replace with a valid Security Group ID
   subnet_id     = local.private_subnet_id # Replace with a valid Subnet ID
   tags = merge(
     local.common_tags,
@@ -70,7 +70,7 @@ resource "aws_lb_target_group" "catalogue" {
   name     = "${local.common_name_suffix}-catalogue"     # roboshop-dev-catalogue
   port     = 8080
   protocol = "HTTP"
-  vpc_id   = data.aws_ssm_parameter.vpc_id.value
+  vpc_id   = local.vpc_id
    deregistration_delay = 60   # we shouldnot delete immediately the instance if traffic reduce , we should wait sometime because it may serving some traffic 
   health_check {
     healthy_threshold = 2
@@ -91,7 +91,7 @@ resource "aws_launch_template" "catalogue" {
   image_id = aws_ami_from_instance.catalogue.id
   instance_initiated_shutdown_behavior = "terminate"
   instance_type = "t3.micro"
-  vpc_security_group_ids = [data.aws_ssm_parameter.catalogue_sg_id.value]
+  vpc_security_group_ids = [local.catalogue_sg_id]
 
   # when we run terraform apply again, a new version is created with new ami id
   update_default_version = true
@@ -135,7 +135,7 @@ resource "aws_autoscaling_group" "catalogue" {
     id      = aws_launch_template.catalogue.id
     version = aws_launch_template.catalogue.latest_version
     }    
-  vpc_zone_identifier       = [data.aws_ssm_parameter.private_subnet_ids.value]
+  vpc_zone_identifier       = [local.private_subnet_ids]
   target_group_arns = [aws_lb_target_group.catalogue.arn]
 
     instance_refresh {

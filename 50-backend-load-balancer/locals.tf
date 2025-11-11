@@ -6,4 +6,6 @@ locals {
     Terraform = true
   }
   private_subnet_ids_list = split(",",data.aws_ssm_parameter.private_subnet_ids.value)
+
+  backend-loadbalancer_sg_id = data.aws_ssm_parameter.backend-loadbalancer.value
 }

@@ -2,7 +2,7 @@ resource "aws_lb" "frontend_alb" {
   name               = "${local.common_name_suffix}-frontend-alb"  # roboshop-dev-frontend-alb
   internal           = true
   load_balancer_type = "application"
-  security_groups    = [data.aws_ssm_parameter.frontend-loadbalancer.value]
+  security_groups    = [local.frontend_loadbalancer_sg_id]
   subnets            = local.public_subnet_ids_list
   
   enable_deletion_protection = false # prevents accidental deletion   so we need to delete from aws console by enable protection mode if true
@@ -21,7 +21,7 @@ resource "aws_lb_listener" "frontend_alb" {
   port              = "443"
   protocol          = "HTTPS"
 ssl_policy        = "ELBSecurityPolicy-TLS13-1-3-2021-06"
-certificate_arn   = data.aws_ssm_parameter.frontend_alb_certificate_arn.value
+certificate_arn   = local.frontend_alb_certificate_arn
 #   default_action {
 #     type = "redirect"
 
