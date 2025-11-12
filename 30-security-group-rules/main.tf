@@ -1,15 +1,15 @@
 # frontend accepting traffic from frontend alb 
 # above we created security groups , here i am giving security group rules
 # giving inbound rules to security groups 
-resource "aws_security_group_rule" "frontend_accept_from_frontend_alb" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  # cidr_blocks       = [aws_vpc.example.cidr_block]
-  security_group_id = data.aws_ssm_parameter.frontend.value   # for which security group  here frontend sg id
-  source_security_group_id = data.aws_ssm_parameter.frontend-loadbalancer.value    # from which security group  here frontend-load balancer or traffic source
-}
+# resource "aws_security_group_rule" "frontend_accept_from_frontend_alb" {
+#   type              = "ingress"
+#   from_port         = 80
+#   to_port           = 80
+#   protocol          = "tcp"
+#   # cidr_blocks       = [aws_vpc.example.cidr_block]
+#   security_group_id = data.aws_ssm_parameter.frontend.value   # for which security group  here frontend sg id
+#   source_security_group_id = data.aws_ssm_parameter.frontend-loadbalancer.value    # from which security group  here frontend-load balancer or traffic source
+# }
 
 # as frontend not completed , we are using bastion instaed of ec2 from frontend
 # resource "aws_security_group_rule" "backend__alb_accept_from_backend_alb" {
