@@ -244,48 +244,92 @@ resource "aws_security_group_rule" "cart_target_group_accept_from_backend_alb" {
 }
 
 # catalogue  target group  accepting connection from cart
-resource "aws_security_group_rule" "catalogue_target_group_accept_from_cart" {
+# This is the mistake , cart cannot access catalogue directly , it should be through backend ALB
+# resource "aws_security_group_rule" "catalogue_target_group_accept_from_cart" {
+#   type              = "ingress"
+#   from_port         = 8080
+#   to_port           = 8080
+#   protocol          = "tcp"
+#   # cidr_blocks       = [aws_vpc.example.cidr_block]
+#   security_group_id = data.aws_ssm_parameter.catalogue.value   # for which security group  here catalogue sg id
+#   source_security_group_id = data.aws_ssm_parameter.cart.value  # here i didnot give source because my laptop is not a part of aws so i will give cird block
+# }
+
+
+
+# backend alb should accept connection from cart
+resource "aws_security_group_rule" "backend_alb_accept_from_cart" {
   type              = "ingress"
-  from_port         = 8080
-  to_port           = 8080
+  from_port         = 80
+  to_port           = 80
   protocol          = "tcp"
   # cidr_blocks       = [aws_vpc.example.cidr_block]
-  security_group_id = data.aws_ssm_parameter.catalogue.value   # for which security group  here catalogue sg id
-  source_security_group_id = data.aws_ssm_parameter.cart.value  # here i didnot give source because my laptop is not a part of aws so i will give cird block
+  security_group_id = data.aws_ssm_parameter.backend-loadbalancer.value   # for which security group  here frontend sg id
+  source_security_group_id = data.aws_ssm_parameter.cart.value    # from which security group  here frontend-load balancer or traffic source
 }
 
+
 # cart  target group  accepting connection from shipping
-resource "aws_security_group_rule" "cart_target_group_accept_from_shipping" {
+# resource "aws_security_group_rule" "cart_target_group_accept_from_shipping" {
+#   type              = "ingress"
+#   from_port         = 8080
+#   to_port           = 8080
+#   protocol          = "tcp"
+#   # cidr_blocks       = [aws_vpc.example.cidr_block]
+#   security_group_id = data.aws_ssm_parameter.cart.value   # for which security group  here catalogue sg id
+#   source_security_group_id = data.aws_ssm_parameter.shipping.value  # here i didnot give source because my laptop is not a part of aws so i will give cird block
+# }
+
+
+
+# backendalb accepting connection from shipping
+resource "aws_security_group_rule" "backend_alb_accept_from_shipping" {
   type              = "ingress"
-  from_port         = 8080
-  to_port           = 8080
+  from_port         = 80
+  to_port           = 80
   protocol          = "tcp"
   # cidr_blocks       = [aws_vpc.example.cidr_block]
-  security_group_id = data.aws_ssm_parameter.cart.value   # for which security group  here catalogue sg id
-  source_security_group_id = data.aws_ssm_parameter.shipping.value  # here i didnot give source because my laptop is not a part of aws so i will give cird block
+  security_group_id = data.aws_ssm_parameter.backend-loadbalancer.value   # for which security group  here frontend sg id
+  source_security_group_id = data.aws_ssm_parameter.shipping.value    # from which security group  here frontend-load balancer or traffic source
 }
 
 # user  target group  accepting connection from payment
-resource "aws_security_group_rule" "user_target_group_accept_from_payment" {
+# resource "aws_security_group_rule" "user_target_group_accept_from_payment" {
+#   type              = "ingress"
+#   from_port         = 8080
+#   to_port           = 8080
+#   protocol          = "tcp"
+#   # cidr_blocks       = [aws_vpc.example.cidr_block]
+#   security_group_id = data.aws_ssm_parameter.user.value   # for which security group  here catalogue sg id
+#   source_security_group_id = data.aws_ssm_parameter.payment.value  # here i didnot give source because my laptop is not a part of aws so i will give cird block
+# }
+
+
+
+# backend alb should accept connection from payment
+resource "aws_security_group_rule" "backend_alb_accept_from_payment" {
   type              = "ingress"
-  from_port         = 8080
-  to_port           = 8080
+  from_port         = 80
+  to_port           = 80
   protocol          = "tcp"
   # cidr_blocks       = [aws_vpc.example.cidr_block]
-  security_group_id = data.aws_ssm_parameter.user.value   # for which security group  here catalogue sg id
-  source_security_group_id = data.aws_ssm_parameter.payment.value  # here i didnot give source because my laptop is not a part of aws so i will give cird block
+  security_group_id = data.aws_ssm_parameter.backend-loadbalancer.value   # for which security group  here frontend sg id
+  source_security_group_id = data.aws_ssm_parameter.payment.value    # from which security group  here frontend-load balancer or traffic source
 }
 
 # cart  target group  accepting connection from payment
-resource "aws_security_group_rule" "cart_target_group_accept_from_payment" {
-  type              = "ingress"
-  from_port         = 8080
-  to_port           = 8080
-  protocol          = "tcp"
-  # cidr_blocks       = [aws_vpc.example.cidr_block]
-  security_group_id = data.aws_ssm_parameter.cart.value   # for which security group  here catalogue sg id
-  source_security_group_id = data.aws_ssm_parameter.payment.value  # here i didnot give source because my laptop is not a part of aws so i will give cird block
-}
+# resource "aws_security_group_rule" "cart_target_group_accept_from_payment" {
+#   type              = "ingress"
+#   from_port         = 8080
+#   to_port           = 8080
+#   protocol          = "tcp"
+#   # cidr_blocks       = [aws_vpc.example.cidr_block]
+#   security_group_id = data.aws_ssm_parameter.cart.value   # for which security group  here catalogue sg id
+#   source_security_group_id = data.aws_ssm_parameter.payment.value  # here i didnot give source because my laptop is not a part of aws so i will give cird block
+# }
+
+
+
 
 # backend alb  target group  accepting connection from frontend instance
 resource "aws_security_group_rule" "backend_alb_accept_from_frontend" {
